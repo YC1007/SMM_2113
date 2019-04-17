@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bdqn.ssm.dao.BillDao">
+    <!--//分页查询订单信息，模糊查询getBillList-->
+    <select id="getBillList" resultMap="BillList">
+              select b.*,p.proName as p_proName from smbms_bill b inner join smbms_provider p
+              on b.providerId=p.id where 1=1
+        <if test="queryProductName!=null and queryProductName!=''">
+            and b.productName like concat('%',#{queryProductName},'%')
+        </if>
+        <if test="queryProviderId>0">
+            and b.providerId= #{queryProviderId}
+        </if>
+        <if test="queryIsPayment>0">
+            and b.isPayment=#{queryIsPayment}
+        </if>
+        limit #{pageIndex},#{pageSize}
+    </select>
+
+    <!--//统计账单总记录数getBillCount-->
+    <select id="getBillCount" resultType="int">
+        SELECT count(1) FROM smbms_bill b where 1=1
+            <if test="queryProductName!=null and queryProductName!=''">
+                and b.productName like concat('%',#{queryProductName},'%')
+            </if>
+            <if test="queryProviderId>0">
+               and b.providerId= #{queryProviderId}
+            </if>
+            <if test="queryIsPayment>0">
+                and b.isPayment=#{queryIsPayment}
+            </if>
+    </select>
+
+    <resultMap id="BillList" type="Bill">
+        <id property="id" column="id"></id>
+        <result property="billCode" column="billCode"></result>
+        <result property="productName" column="productName"></result>
+        <result property="productDesc" column="productDesc"></result>
+        <result property="productUnit" column="productUnit"></result>
+        <result property="productCount" column="productCount"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+        <result property="isPayment" column="isPayment"></result>
+        <result property="createdBy" column="createdBy"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <result property="modifyBy" column="modifyBy"></result>
+        <result property="modifyDate" column="modifyDate"></result>
+        <result property="providerId" column="providerId"></result>
+        <association property="provider" javaType="Provider">
+            <id property="id" column="id"></id>
+            <result property="proName" column="p_proName"></result>
+        </association>
+    </resultMap>
+
+    <!--添加订单信息addBill-->
+    <insert id="addBill" parameterType="Bill">
+          INSERT INTO smbms_bill(billCode,productName,productUnit,productCount,
+                                  totalPrice,providerId,isPayment,createdBy,creationDate)
+          VALUES(#{billCode},#{productName},#{productUnit},#{productCount},
+                  #{totalPrice},#{providerId},#{isPayment},#{createdBy},#{creationDate})
+    </insert>
+
+    <!--通过ID查询订单记录getBillById-->
+    <select id="getBillById" resultType="Bill">
+     SELECT b.*,p.proName FROM smbms_bill b INNER JOIN
+			smbms_provider p on b.createdBy=p.id where b.id=#{bid}
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

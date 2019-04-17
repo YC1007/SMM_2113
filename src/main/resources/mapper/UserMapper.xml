@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bdqn.ssm.dao.UserDao">
+
+<!--通过用户编码查寻用户信息   用户登陆-->
+<select id="getLoginUser" resultType="User">
+    select * from smbms_user
+    <trim prefix="where" prefixOverrides="and||or">
+        <if test="userCode!=null and userCode!=''">
+            and userCode=#{userCode}
+        </if>
+    </trim>
+</select>
+
+    <!-- 查询用户数量-->
+    <select id="getUserCount" resultType="int">
+    select count(1) from smbms_user u
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="userName!=null and userName!=''">
+                and u.userName like concat('%',#{userName},'%')
+            </if>
+            <if test="userRole>0">
+                and u.userRole= #{userRole}
+            </if>
+
+        </trim>
+    <!--<choose>-->
+    <!--<when test="userName!=null and userName!=''"> and u.userName like concat('%',#{userName},'%')</when>-->
+    <!--<when test="userRole>0"> and u.userRole= #{userRole}</when>-->
+    <!--</choose>-->
+    </select>
+
+
+    <!--分页获取账单信息，currentPageNo当前页，pageSize每页显示的记录数getUserList-->
+    <select id="getUserList" resultMap="UserList">
+        select u.*,r.roleName as r_roleName from smbms_user u inner join smbms_role r on u.userRole=r.id where 1=1
+        <if test="userName!=null and userName!=''">
+            and u.userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userRole>0">
+            and u.userRole= #{userRole}
+        </if>
+        limit #{pageNo},#{pageSize}
+    </select>
+
+
+    <resultMap id="UserList" type="User">
+        <id property="id" column="id"></id>
+        <result property="userCode" column="userCode"></result>
+        <result property="userName" column="userName"></result>
+        <result property="userPassword" column="userPassword"></result>
+        <result property="gender" column="gender"></result>
+        <result property="birthday" column="birthday"></result>
+        <result property="phone" column="phone"></result>
+        <result property="address" column="address"></result>
+        <result property="userRole" column="userRole"></result>
+        <result property="createdBy" column="createdBy"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <result property="modifyBy" column="modifyBy"></result>
+        <result property="modifyDate" column="modifyDate"></result>
+        <result property="idPicPath" column="idPicPath"></result>
+        <result property="workPicPath" column="workPicPath"></result>
+        <association property="role" javaType="Role">
+            <id property="id" column="id"></id>
+            <result property="roleName" column="r_roleName"></result>
+        </association>
+    </resultMap>
+
+    <!--添加用户add-->
+    <!--<insert id="add" parameterType="User">-->
+        <!--insert into smbms_user (userCode,userName,userPassword,userRole,gender,birthday,phone,-->
+                          <!--address,creationDate,createdBy)-->
+        <!--values (#{userCode},#{userName},#{userPassword},#{userRole},#{gender},#{birthday},#{phone},-->
+        <!--#{address},#{creationDate},#{createdBy})-->
+    <!--</insert>-->
+    <insert id="add" parameterType="User">
+          insert into smbms_user(userCode,userName,userPassword,gender,birthday,phone,address,
+          userRole,createdBy,creationDate,idPicPath,workPicPath)values(#{userCode},#{userName},
+          #{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate}
+          ,#{idPicPath},#{workPicPath})
+    </insert>
+
+    <!--通过id删除用户信息del-->
+<delete id="del" parameterType="User">
+      delete from smbms_user where id=#{id}
+</delete>
+
+    <!--通过id查询用户信息getUserById-->
+<select id="getUserById" resultType="User">
+      select u.*,r.roleName from smbms_user u inner join
+      smbms_role r on u.userRole=r.id where u.id=#{id}
+</select>
+
+    <!--修改用户信息updateUser-->
+<update id="updateUser" parameterType="User">
+      update smbms_user set userName=#{userName}, gender=#{gender}, birthday=#{birthday},
+      phone=#{phone},address=#{address}, userRole=#{userRole} where id=#{id}
+</update>
+
+    <!--通过userCode获取User getuserCodeLoginUser-->
+<select id="getuserCodeLoginUser" resultType="User">
+      select * from smbms_user where userCode=#{userCode}
+</select>
+
+</mapper>
+
